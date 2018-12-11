@@ -14,35 +14,37 @@ public abstract class Connection implements Runnable {
 	Thread thread;
 	public boolean isOpen;
 
-	public Connection() {
+	public Connection () {
 
 	}
 
-	public Connection(Socket socket, ObjectInputStream inputStream,
-			ObjectOutputStream outputStream) {
+	public Connection (Socket socket, ObjectInputStream inputStream,
+		         ObjectOutputStream outputStream) {
 
 		this.socket = socket;
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
 
-		address = socket.getInetAddress().getHostAddress();
+		address = socket.getInetAddress ().getHostAddress ();
 
-		thread = new Thread(this);
+		thread = new Thread (this);
 
 		isOpen = true;
 
 	}
 
-	public Object retrieveObject() {
+	public Object retrieveObject () {
 
 		try {
-			return this.inputStream.readObject();
+			return this.inputStream.readObject ();
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		}
+		catch (ClassNotFoundException e) {
+			e.printStackTrace ();
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace ();
 
 		}
 
@@ -50,37 +52,37 @@ public abstract class Connection implements Runnable {
 
 	}
 
-	public String getAddress() {
+	public String getAddress () {
 		return address;
 
 	}
 
-	public void start() {
-		thread.start();
+	public void start () {
+		thread.start ();
 
 	}
 
-	public void close() throws IOException {
+	public void close () throws IOException {
 
-		onClose();
+		onClose ();
 
 		isOpen = false;
 
-		inputStream.close();
-		outputStream.close();
-		socket.close();
+		inputStream.close ();
+		outputStream.close ();
+		socket.close ();
 
 	}
 
-	public abstract void onClose();
+	public abstract void onClose ();
 
-	public void writeObject(Object o) throws IOException {
-		outputStream.writeObject(o);
-		outputStream.flush();
+	public void writeObject (Object o) throws IOException {
+		outputStream.writeObject (o);
+		outputStream.flush ();
 
 	}
 
 	@Override
-	public abstract void run();
+	public abstract void run ();
 
 }

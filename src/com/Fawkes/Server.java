@@ -1,10 +1,8 @@
 package com.Fawkes;
 
-import com.Fawkes.network.*;
+import com.Fawkes.network.Connection;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
@@ -13,12 +11,10 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class Server extends JFrame implements Runnable {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+
 	private JTextField messageInput;
 	private JTextArea chatWindow;
+
 	private ServerSocket serverSocket;
 
 	private ArrayList<Connection> connections = new ArrayList<Connection> ();
@@ -37,6 +33,7 @@ public class Server extends JFrame implements Runnable {
 	private ServerListener listener;
 
 	public Server () {
+
 		super ("IM Beta Server 0.5");
 
 		server = this;
@@ -45,43 +42,44 @@ public class Server extends JFrame implements Runnable {
 
 		PORTNO = Integer.parseInt (getSetting ("port"));
 		MAXPEOPLE = Integer.parseInt (getSetting ("maxconnected"));
-		try {
-			FIS.close ();
-		}
-		catch (IOException e) {
-			e.printStackTrace ();
-		}
+
+		try { FIS.close (); }
+		catch (IOException e) { e.printStackTrace (); }
+
 		messageInput = new JTextField ();
 		chatWindow = new JTextArea ();
 
-		messageInput.addActionListener (new ActionListener () {
-			public void actionPerformed (ActionEvent enterPressed) {
+		messageInput.addActionListener (enterPressed -> {
 
-				if (messageInput.getText ().contentEquals ("CLOSE_SERVER")) {
-					closeServer ();
-					return;
+			if (messageInput.getText ().contentEquals ("CLOSE_SERVER")) {
+				closeServer ();
+				return;
 
-				}
-
-				String message = "MAIN SERVER - " + messageInput.getText ();
-
-				sendServerMessage (message);
-				showMessage (message);
-
-				messageInput.setText ("");
 			}
+
+			String message = "MAIN SERVER - " + messageInput.getText ();
+
+			sendServerMessage (message);
+			showMessage (message);
+
+			messageInput.setText ("");
 		});
 
 		chatWindow.setEditable (false);
 
 		add (new JScrollPane (messageInput), "South");
+
 		add (new JScrollPane (chatWindow), "Center");
 
 		setSize (500, 800);
+
 		setVisible (true);
+
 		setDefaultCloseOperation (3);
 
-		listenForConnections = new Thread (this);
+		listenForConnections = new
+
+			Thread (this);
 
 	}
 
@@ -128,6 +126,7 @@ public class Server extends JFrame implements Runnable {
 	}
 
 	public void sendOnePersonMessage (String message, Connection connection) {
+
 		try {
 
 			String m = new String (message + "\n");
@@ -137,11 +136,13 @@ public class Server extends JFrame implements Runnable {
 			showMessage (message);
 
 		}
+
 		catch (IOException e) {
 			System.err.println ("Error: Could not send message \"" + message
 				+ "\" to " + connection.getAddress ());
 			e.printStackTrace ();
 		}
+
 	}
 
 	private void closeServer () {
@@ -276,6 +277,8 @@ public class Server extends JFrame implements Runnable {
 				/*
 
 				I (Nomar) replaced this with a thing in handleMessage() that checks for username
+
+				// TODO: multiple people with diff usernames
 
 				sendServerMessage("MAIN SERVER - " + address
 						+ " has joined the chat.");
