@@ -1,93 +1,70 @@
 package com.Fawkes;
 
-import com.Fawkes.network.Connection;
-
-import java.util.ArrayList;
-
-
-public class RPS implements ServerListener {
-
-	Server server;
-
-	private String player1, player2;
-	private String player1Choice, player2Choice;
-
-	String[] choices;
-
-	public RPS (Server server) {
-		this.server = server;
-
-		reset ();
-
-		this.choices = new String[] { "rock", "paper", "scissors" };
-	}
-
-	public void reset () {
-		player1 = "none";
-		player2 = "none";
-		player1Choice = "none";
-		player2Choice = "none";
-		server.sendServerMessage ("The game has reset! Type either 'rock', 'paper' or 'scissors' to make a choice.");
-	}
-
-	/**
-	 * Returns an ArrayList with the usernames of the first players. First index = player1, second index = player2
-	 *
-	 * @return player usernames
-	 */
-
-	public ArrayList<String> getPlayerUsernames () {
-		ArrayList<String> players = new ArrayList<String> ();
-
-		players.add (player1);
-		players.add (player2);
-
-		return players;
-	}
+import com.Fawkes.event.EventHandler;
+import com.Fawkes.event.EventParcelCommandReceived;
+import com.Fawkes.event.Listener;
+import com.Fawkes.network.ParcelCommand;
+import com.Fawkes.network.Sender;
 
 
-	/**
-	 * Get the choice of a player, using "player1" or "player2" as argument
-	 *
-	 * @param player a string of the player
-	 * @return the choice, either rock, paper, or scissors, lowercase
-	 */
+public class RPS implements Listener {
 
-	public String getChoice (String player) {
-		if (player.equalsIgnoreCase ("player1")) {
-			return player1Choice;
+	// constants
+	private final static String[] choices = new String[] { "rock", "paper", "scissors" };
+	private static final String USAGE = "Usage: /rps <rock, paper, scissors>";
+
+	//
+	private RPSPlayer initiator;
+
+	@EventHandler
+	public void onCommand (EventParcelCommandReceived e) {
+
+		ParcelCommand c = e.getParcel ();
+
+		if (!c.getCommandName ().equalsIgnoreCase ("rps")) return;
+
+		e.setCancelled (true);
+
+		if (c.getCommandArgs ().length != 1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
+
+		int choice = intValue (c.getCommandArgs ()[0]);
+
+		if (choice == -1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
+
+		// everything is valid
+
+		// become initiator if there is none
+		if (initiator == null) {
+
+			initiator = new RPSPlayer (c.getSender (), choice);
+			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), c.getSender ().getAddress ());
+			Server.staticBroadcast ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.");
+			return;
+
 		}
 
-		if (player.equalsIgnoreCase ("player2")) {
-			return player2Choice;
-		}
+		Server.staticSend (String.format ("You challenge %s with your choice of %s.", initiator.getSender ().getNickname (), choices[choice]), c.getSender ().getAddress ());
 
-		return "use player1 or player2 as argument";
-	}
+		// calculate the game
+		RPSPlayer challenger = new RPSPlayer (c.getSender (), choice); // just for ease of coding
 
-	public void setChoice (String player, String choice) {
-		if (player.equalsIgnoreCase ("player1")) {
-			player1Choice = choice;
-		}
+		int result = (challenger.getChoice () + 3 - initiator.getChoice ()) % 3;
 
-		if (player.equalsIgnoreCase ("player2")) {
-			player2Choice = choice;
-		}
-	}
+		String winner;
+		if (result == 0) winner = "nobody";
+		else if (result == 1) winner = challenger.getSender ().getNickname ();
+		else winner = initiator.getSender ().getNickname ();
 
-	/**
-	 * Returns the winner of the game
-	 *
-	 * @return returns "player1", "player2" or "draw"
-	 */
+		// announce winners
+		Server.staticBroadcast (String.format ("%s challenges %s... %s challenges %s... %s wins!",
+			challenger.getSender ().getNickname (),
+			initiator.getSender ().getNickname (),
+			choices[challenger.getChoice ()],
+			choices[initiator.getChoice ()],
+			winner));
 
-	public String calculateWinner () {
-
-		int result = (intValue (player2Choice) + 3 - intValue (player1Choice)) % 3;
-
-		if (result == 0) return "draw";
-		else if (result == 1) return "player2";
-		else return "player1";
+		// reset game
+		initiator = null;
 
 	}
 
@@ -99,111 +76,17 @@ public class RPS implements ServerListener {
 
 	}
 
-	@Override
-	public void playerConnected (Connection playerClient) {
-		server.sendOnePersonMessage ("Yo, choose something. Type either 'rock', 'paper' or 'scissors'.", playerClient);
-	}
+	private class RPSPlayer {
 
-	@Override
-	public void messageReceived (String message, Connection playerClient) {
+		private Sender sender;
+		private int choice;
 
-		String messageSplit[] = message.split (" - ");
+		RPSPlayer (Sender sender, int choice) { this.sender = sender; this.choice = choice; }
 
-		if (messageSplit[1].split (" ").length > 1) {
-			return;
-		}
+		public Sender getSender () { return sender; }
 
-		// Checks if the msg actually says rock, paper or scissors
-		if (!isRps (messageSplit[1])) {
-
-			// Reset game
-
-			if (messageSplit[1].equalsIgnoreCase ("reset")) {
-				reset ();
-			}
-
-			return;
-		}
-
-		String user = messageSplit[0];
-		String choice = messageSplit[1].toLowerCase ();
-
-		// Assign choice
-
-		if (checkIfPlayerAlreadyMadeChoiceAndIfNotAssignChoice (user, choice) == true) {
-			server.sendOnePersonMessage ("You already made a choice!", playerClient);
-			return;
-		}
-
-		announceChoiceConfirmation (user, choice, playerClient);
-
-		// Check if both players made a choice and if so calculate + announce winner
-
-		doResults ();
+		public int getChoice () { return choice; }
 
 	}
 
-
-	// Below is a bunch of private methods just for the sake of clean code split up into smaller methods
-
-	private void doResults () {
-
-		if (!player1.equals ("none") && !player2.equals ("none")) {
-			String winningChoice = "";
-			String winningPlayer = "";
-			String losingPlayerChoice = "";
-
-			if (calculateWinner ().equals ("player1")) {
-				winningChoice = player1Choice;
-				winningPlayer = player1;
-				losingPlayerChoice = player2Choice;
-				server.sendServerMessage ("The winner is " + winningPlayer + " with their choice " + winningChoice + ", beating " + losingPlayerChoice);
-			}
-
-			else if (calculateWinner ().equals ("player2")) {
-				winningChoice = player2Choice;
-				winningPlayer = player2;
-				losingPlayerChoice = player1Choice;
-				server.sendServerMessage ("The winner is " + winningPlayer + " with their choice " + winningChoice + ", beating " + losingPlayerChoice);
-			}
-
-			else if (calculateWinner ().equals ("draw")) {
-				server.sendServerMessage ("It's a draw! " + player1Choice + " vs " + player2Choice + "!");
-			}
-
-			server.sendServerMessage ("Type 'reset' if you want to restart the game");
-
-		}
-
-	}
-
-	private void announceChoiceConfirmation (String user, String choice, Connection playerClient) {
-		server.sendServerMessage (user + " has made a choice!");
-		server.sendOnePersonMessage ("(" + user + ", you chose " + choice + ")", playerClient);
-	}
-
-	private boolean checkIfPlayerAlreadyMadeChoiceAndIfNotAssignChoice (String user, String choice) {
-
-		// Returns true if player had already made a choice, otherwise it just assigns the choice and returns false
-
-		if (player1.equals ("none")) {
-			player1 = user;
-			player1Choice = choice;
-			return false;
-		}
-
-		else if (player2.equals ("none") && !(player1.equals (user))) {
-			player2 = user;
-			player2Choice = choice;
-			return false;
-		}
-
-		return true;
-	}
-
-	private boolean isRps (String msg) {
-		if (msg.equalsIgnoreCase ("rock") || msg.equalsIgnoreCase ("paper") || msg.equalsIgnoreCase ("scissors")) {return true;}
-
-		return false;
-	}
 }

@@ -18,8 +18,7 @@ public abstract class Connection implements Runnable {
 
 	}
 
-	public Connection (Socket socket, ObjectInputStream inputStream,
-		         ObjectOutputStream outputStream) {
+	public Connection (Socket socket, ObjectInputStream inputStream, ObjectOutputStream outputStream) {
 
 		this.socket = socket;
 		this.inputStream = inputStream;
@@ -39,18 +38,15 @@ public abstract class Connection implements Runnable {
 			return this.inputStream.readObject ();
 
 		}
-		catch (ClassNotFoundException e) {
-			e.printStackTrace ();
 
-		}
-		catch (IOException e) {
-			e.printStackTrace ();
-
-		}
+		catch (ClassNotFoundException e) { e.printStackTrace (); }
+		catch (IOException e) { e.printStackTrace (); }
 
 		return null;
 
 	}
+
+	//TODO: protocol including images
 
 	public String getAddress () {
 		return address;
@@ -64,8 +60,6 @@ public abstract class Connection implements Runnable {
 
 	public void close () throws IOException {
 
-		onClose ();
-
 		isOpen = false;
 
 		inputStream.close ();
@@ -73,8 +67,6 @@ public abstract class Connection implements Runnable {
 		socket.close ();
 
 	}
-
-	public abstract void onClose ();
 
 	public void writeObject (Object o) throws IOException {
 		outputStream.writeObject (o);
