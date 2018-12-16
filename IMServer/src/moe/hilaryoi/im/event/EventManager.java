@@ -1,6 +1,6 @@
-package com.Fawkes.event;
+package moe.hilaryoi.im.event;
 
-import com.Fawkes.Server;
+import moe.hilaryoi.im.Server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

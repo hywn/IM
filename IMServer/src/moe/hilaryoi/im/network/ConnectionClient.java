@@ -1,6 +1,6 @@
-package com.Fawkes.network;
+package moe.hilaryoi.im.network;
 
-import com.Fawkes.Server;
+import moe.hilaryoi.im.Server;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

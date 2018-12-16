@@ -1,10 +1,11 @@
-package com.Fawkes;
+package moe.hilaryoi.im;
 
-import com.Fawkes.event.EventManager;
-import com.Fawkes.event.EventParcelAneReceived;
-import com.Fawkes.event.EventParcelCommandReceived;
-import com.Fawkes.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.event.EventManager;
+import moe.hilaryoi.im.event.EventParcelAneReceived;
+import moe.hilaryoi.im.event.EventParcelCommandReceived;
+import moe.hilaryoi.im.event.EventParcelMessageReceived;
 import com.Fawkes.network.*;
+import moe.hilaryoi.im.network.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,8 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class
-Server extends JFrame implements Runnable {
+public class Server extends JFrame implements Runnable {
 
 	// GUI
 	private JTextField messageInput;
@@ -25,7 +25,7 @@ Server extends JFrame implements Runnable {
 
 	// connection info
 	private ServerSocket serverSocket;
-	private HashMap<String, ConnectionClient> connections; // address, connection
+	private HashMap<String, ConnectionClient> connections; // unique username, connection
 
 	// config
 	private int port, max_connected; // will be 0 if config fails

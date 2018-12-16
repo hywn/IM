@@ -1,9 +1,9 @@
 package com.Fawkes;
 
-import com.Fawkes.network.ConnectionServer;
-import com.Fawkes.network.Parcel;
-import com.Fawkes.network.ParcelAne;
-import com.Fawkes.network.ParcelMessage;
+import moe.hilaryoi.im.network.ConnectionServer;
+import moe.hilaryoi.im.network.Parcel;
+import moe.hilaryoi.im.network.ParcelAne;
+import moe.hilaryoi.im.network.ParcelMessage;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;

@@ -1,10 +1,10 @@
-package com.Fawkes;
+package moe.hilaryoi.im;
 
-import com.Fawkes.event.EventHandler;
-import com.Fawkes.event.EventParcelCommandReceived;
-import com.Fawkes.event.Listener;
-import com.Fawkes.network.ParcelCommand;
-import com.Fawkes.network.Sender;
+import moe.hilaryoi.im.event.EventHandler;
+import moe.hilaryoi.im.event.EventParcelCommandReceived;
+import moe.hilaryoi.im.event.Listener;
+import moe.hilaryoi.im.network.ParcelCommand;
+import moe.hilaryoi.im.network.Sender;
 
 
 public class RPS implements Listener {

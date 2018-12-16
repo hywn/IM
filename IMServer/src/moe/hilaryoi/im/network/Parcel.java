@@ -1,4 +1,4 @@
-package com.Fawkes.network;
+package moe.hilaryoi.im.network;
 
 import java.io.Serializable;
 

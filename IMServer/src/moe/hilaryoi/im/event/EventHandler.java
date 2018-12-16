@@ -1,4 +1,4 @@
-package com.Fawkes.event;
+package moe.hilaryoi.im.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

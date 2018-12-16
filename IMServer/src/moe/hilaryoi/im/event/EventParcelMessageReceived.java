@@ -1,6 +1,6 @@
-package com.Fawkes.event;
+package moe.hilaryoi.im.event;
 
-import com.Fawkes.network.ParcelMessage;
+import moe.hilaryoi.im.network.ParcelMessage;
 
 public class EventParcelMessageReceived extends EventParcelReceived<ParcelMessage> {
 

@@ -1,4 +1,4 @@
-package com.Fawkes.network;
+package moe.hilaryoi.im.network;
 
 public class Sender { // maybe not the best design
 
