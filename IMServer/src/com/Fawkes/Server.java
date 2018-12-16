@@ -16,7 +16,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class Server extends JFrame implements Runnable {
+public class
+Server extends JFrame implements Runnable {
 
 	// GUI
 	private JTextField messageInput;
@@ -24,7 +25,7 @@ public class Server extends JFrame implements Runnable {
 
 	// connection info
 	private ServerSocket serverSocket;
-	private HashMap<String, Connection> connections; // address, connection
+	private HashMap<String, ConnectionClient> connections; // address, connection
 
 	// config
 	private int port, max_connected; // will be 0 if config fails
@@ -104,6 +105,8 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
+	//TODO: I use .getSender.getAddress () way too much
+
 	public void log (String message, Object... params) {
 
 		chatWindow.append (String.format (message, params) + "\n");
@@ -133,7 +136,7 @@ public class Server extends JFrame implements Runnable {
 
 		try {
 
-			for (Connection connection : connections.values ()) connection.close ();
+			for (ConnectionClient connection : connections.values ()) connection.close ();
 
 			log ("Closed all connections. Now exiting...");
 			System.exit (0);
@@ -147,29 +150,34 @@ public class Server extends JFrame implements Runnable {
 
 		}
 
+		catch (InterruptedException e) { e.printStackTrace (); }
+
 	}
 
-	private void sendNoLog (String message, Connection connection) {
+	private void sendParcel (Parcel parcel, ConnectionClient client) {
 
-		try {
 
-			connection.writeObject (message);
-
-		}
+		try { client.writeObject (parcel); }
 
 		catch (IOException e) {
 
-			log ("Error: Could not send message `%s` to %s.", message, connection.getAddress ());
+			log ("Error: Could not send parcel `%s` to %s.", parcel, client.getSender ().getAddress ());
 			e.printStackTrace ();
 
 		}
 
 	}
 
+	private void sendNoLog (String message, ConnectionClient connection) {
+
+		sendParcel (new ParcelMessage (message), connection);
+
+	}
+
 
 	public void broadcast (String message) {
 
-		for (Connection connection : connections.values ()) sendNoLog (message, connection);
+		for (ConnectionClient connection : connections.values ()) sendNoLog (message, connection);
 
 		log (message); // TODO: add counter to log instead of using sendNoLog?, e.g. "Hello (20)"
 
@@ -182,16 +190,20 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
-	// we could just take address from the object instead of using Connection but idk maybe someone mods their client ofso and that would be trouble
-	private void receive (Object object, Connection connection) {
+	// we could just take address from the object instead of using ConnectionClient but idk maybe someone mods their client ofso and that would be trouble
+	private void receive (Object object, ConnectionClient connection) {
 
-		if (!(object instanceof Parcel)) log ("Received non-Parcel object from %s.", connection.getAddress ());
+		if (!(object instanceof Parcel)) log ("Received non-Parcel object from %s.", connection.getSender ().getAddress ());
 
-		Class c = object.getClass ();
+		Parcel p = (Parcel) object;
+
+		p.setSender (connection.getSender ());// this is key; must stamp so that the sender info can be passed along.
+
+		Class c = p.getClass ();
 
 		if (c == ParcelMessage.class) {
 
-			ParcelMessage message = (ParcelMessage) object;
+			ParcelMessage message = (ParcelMessage) p;
 
 			if (message.getBody ().startsWith ("/")) eventManager.callEvent (new EventParcelCommandReceived (new ParcelCommand (message)));
 			else eventManager.callEvent (new EventParcelMessageReceived (message));
@@ -200,7 +212,7 @@ public class Server extends JFrame implements Runnable {
 
 		else if (c == ParcelAne.class) {
 
-			ParcelAne ane = (ParcelAne) object;
+			ParcelAne ane = (ParcelAne) p;
 
 			switch (ane.getValue ()) {
 
@@ -211,7 +223,7 @@ public class Server extends JFrame implements Runnable {
 					endConnection (connection);
 					break;
 				default:
-					log ("Unknown Ane value from address %s: %s", connection.getAddress (), ane.getValue ());
+					log ("Unknown Ane value from address %s: %s", connection.getSender ().getAddress (), ane.getValue ());
 
 			}
 
@@ -221,17 +233,17 @@ public class Server extends JFrame implements Runnable {
 
 		else {
 
-			log ("Unknown Parcel received from address %s.", connection.getAddress ());
+			log ("Unknown Parcel received from address %s.", connection.getSender ().getAddress ());
 
 		}
 
 	}
 
-	private void endConnection (Connection connection) {
+	private void endConnection (ConnectionClient connection) {
 
 		try {
 
-			String address = connection.getAddress ();
+			String address = connection.getSender ().getAddress ();
 
 			log ("%s is disconnecting...", address);
 
@@ -245,6 +257,8 @@ public class Server extends JFrame implements Runnable {
 
 		catch (IOException e) { e.printStackTrace (); }
 
+		catch (InterruptedException e) { e.printStackTrace (); }
+
 	}
 
 	// TODO: maybe only add to connections once they've been verified?
@@ -256,7 +270,9 @@ public class Server extends JFrame implements Runnable {
 
 				Socket socket = serverSocket.accept ();
 
-				Connection connection = new Connection (
+				log ("Attempting to connect to %s...", socket.getInetAddress ().getHostAddress ());
+
+				ConnectionClient connection = new ConnectionClient (
 					socket,
 					new ObjectInputStream (socket.getInputStream ()),
 					new ObjectOutputStream (socket.getOutputStream ())) {
@@ -266,8 +282,7 @@ public class Server extends JFrame implements Runnable {
 
 						while (isOpen) {
 
-							String m = (String) this.retrieveObject ();
-							receive (m, this);
+							receive (this.retrieveObject (), this);
 
 						}
 
@@ -279,7 +294,9 @@ public class Server extends JFrame implements Runnable {
 
 				connection.start ();
 
-				connections.put (connection.getAddress (), connection);
+				connections.put (connection.getSender ().getAddress (), connection);
+
+				log ("Connected to %s.", connection.getSender ().getAddress ());
 
 			}
 		}
@@ -288,11 +305,13 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
+	public String getNickname (String address) { return "Guest"; }
+
 	public EventManager getEventManager () { return eventManager; }
 
 	// not really safe; exposing huge chunk of raw server
 	// TODO: maybe only make public safe data like nicknames and String addresses?
-	public Collection<Connection> getConnections () { return connections.values (); }
+	public Collection<ConnectionClient> getConnections () { return connections.values (); }
 
 	public static Server getServer () { return server; }
 

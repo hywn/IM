@@ -5,32 +5,27 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public abstract class Connection implements Runnable {
+public abstract class ConnectionServer implements Runnable {
 
 	Socket socket;
 	ObjectInputStream inputStream;
 	ObjectOutputStream outputStream;
-	String address;
 	Thread thread;
 	public boolean isOpen;
 
-	public Connection () {
-
-	}
-
-	public Connection (Socket socket, ObjectInputStream inputStream, ObjectOutputStream outputStream) {
+	public ConnectionServer (Socket socket, ObjectInputStream inputStream, ObjectOutputStream outputStream) {
 
 		this.socket = socket;
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-
-		address = socket.getInetAddress ().getHostAddress ();
 
 		thread = new Thread (this);
 
 		isOpen = true;
 
 	}
+
+	//TODO: protocol including images
 
 	public Object retrieveObject () {
 
@@ -48,23 +43,20 @@ public abstract class Connection implements Runnable {
 
 	//TODO: protocol including images
 
-	public String getAddress () {
-		return address;
-
-	}
-
 	public void start () {
 		thread.start ();
 
 	}
 
-	public void close () throws IOException {
+	public void close () throws IOException, InterruptedException {
 
 		isOpen = false;
 
 		inputStream.close ();
 		outputStream.close ();
 		socket.close ();
+
+		thread.join (1000);
 
 	}
 

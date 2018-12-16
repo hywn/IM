@@ -11,7 +11,7 @@ public class ParcelCommand extends Parcel {
 
 	public ParcelCommand (ParcelMessage rawMessage) {
 
-		super (rawMessage.getSender ());
+		setSender (rawMessage.getSender ());
 
 		// removes initial slash and splits by space
 		String[] parts = rawMessage.getBody ().replaceFirst ("/", "").split (" ");

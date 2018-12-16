@@ -1,14 +1,12 @@
 package com.Fawkes.network;
 
-public abstract class Parcel {
+import java.io.Serializable;
+
+public abstract class Parcel implements Serializable {
 
 	private Sender sender;
 
-	public Parcel (Sender sender) {
-
-		this.sender = sender;
-
-	}
+	public void setSender (Sender sender) { this.sender = sender; }
 
 	public Sender getSender () { return sender; }
 

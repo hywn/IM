@@ -6,9 +6,8 @@ public class ParcelAne extends Parcel {
 
 	private byte value;
 
-	public ParcelAne (byte value, Sender sender) {
+	public ParcelAne (byte value) {
 
-		super (sender);
 		this.value = value;
 
 	}

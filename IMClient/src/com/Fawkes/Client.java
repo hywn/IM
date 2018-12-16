@@ -1,6 +1,9 @@
 package com.Fawkes;
 
-import com.Fawkes.network.Connection;
+import com.Fawkes.network.ConnectionServer;
+import com.Fawkes.network.Parcel;
+import com.Fawkes.network.ParcelAne;
+import com.Fawkes.network.ParcelMessage;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
@@ -26,7 +29,7 @@ public class Client extends JFrame {
 	private JMenuItem settings;
 
 	// connections
-	private Connection c;
+	private ConnectionServer c;
 
 	// settings, misc
 	private String username;
@@ -37,10 +40,10 @@ public class Client extends JFrame {
 	private boolean playSound;
 
 	public Client () {
+
 		super ("PoodleIM Beta Client 0.6");
 
 		loadConfig ();
-
 		loadValues ();
 
 		// creates gui
@@ -54,42 +57,37 @@ public class Client extends JFrame {
 		options.add (settings);
 
 		// creates icon
-		try {
-			setIconImage (ImageIO.read (Client.class
-				.getResourceAsStream ("/IM.png")));
-		}
-		catch (IOException e) {
-			System.err.println ("COULD NOT SET UP ICON");
-		}
-		settings.addActionListener (new ActionListener () {
-			public void actionPerformed (ActionEvent click) {
+		try { setIconImage (ImageIO.read (Client.class.getResourceAsStream ("/IM.png"))); }
 
-				@SuppressWarnings ("unused")
-				SettingsFrame sf = new SettingsFrame ();
-			}
-		});
+		catch (IOException e) { System.err.println ("COULD NOT SET UP ICON"); }
+
+		settings.addActionListener (click -> new SettingsFrame ());
 
 		// when you press enter
-		messageInput.addActionListener (new ActionListener () {
-			public void actionPerformed (ActionEvent enter) {
-				if (!enter.getActionCommand ().replace (" ", "").isEmpty ()) {
-					sendIM (enter.getActionCommand ());
-					messageInput.setText ("");
-				}
+		messageInput.addActionListener (enter -> {
+
+			if (!enter.getActionCommand ().replace (" ", "").isEmpty ()) {
+
+				sendMessage (enter.getActionCommand ());
+
+				messageInput.setText ("");
+
 			}
+
 		});
 
 		// when you close the window
 		WindowListener wListener = new WindowAdapter () {
-			public void windowClosing (WindowEvent e) {
-				if (connected) {
 
-					closeClient ();
-				}
-				else {
-					System.exit (0);
-				}
+			@Override
+			public void windowClosing (WindowEvent e) {
+
+				if (connected) closeClient ();
+
+				else System.exit (0);
+
 			}
+
 		};
 
 		// gui stuff
@@ -102,6 +100,8 @@ public class Client extends JFrame {
 		setSize (500, 800);
 		setVisible (true);
 	}
+
+	private void log (String message, Object... objects) { chatWindow.append (String.format (message + "%n", objects)); }
 
 	// plays sound
 	public synchronized void playMessageSound (String file) {
@@ -122,6 +122,7 @@ public class Client extends JFrame {
 	}
 
 	public void loadValues () {
+
 		username = getSetting ("username");
 
 		portNo = Integer.parseInt (getSetting ("port"));
@@ -129,77 +130,84 @@ public class Client extends JFrame {
 		playSound = Boolean.parseBoolean (getSetting ("play_sound"));
 
 		serverIP = getSetting ("ip");
+
 	}
 
 	public void startRunning () throws ClassNotFoundException {
-		try {
-			connectToServer ();
 
-		}
+		try { connectToServer (); }
+
 		catch (IOException e) {
-			showMessage ("Connection error.\n");
-			showMessage ("This could either mean that the IM server has crashed, or that the client could not find a server to connect with!\n");
-			showMessage ("Make sure to check your connection settings.\n");
+
+			log ("ConnectionServer error.");
+			log ("This could either mean that the IM server has crashed, or that the client could not find a server to connect with!");
+			log ("Make sure to check your connection settings.");
 
 			connected = false;
 
 		}
+
 	}
 
 	public void closeClient () {
-		showMessage ("Closing and shutting down...\n");
-		sendIM ("@#^^%[END_CLIENT_CONNECTION]%^^#@");
+
+		log ("Closing and shutting down...");
+
+		sendParcel (new ParcelAne (ParcelAne.ANE_GOODBYE));
+
 		ableToType (false);
 
 		try {
+
 			c.close ();
 			System.exit (0);
 
 		}
-		catch (IOException e) {
-			e.printStackTrace ();
 
-		}
+		catch (IOException e) { e.printStackTrace (); }
+
+		catch (InterruptedException e) { e.printStackTrace (); }
+
 	}
 
 	public void connectToServer () throws IOException {
-		showMessage ("Attempting to connect to " + serverIP + " on port number "
-			+ portNo + "...\n");
+
+		log ("Attempting to connect to %s on port %s...", serverIP, portNo);
 
 		Socket connection = new Socket (InetAddress.getByName (serverIP), portNo);
 
-		ObjectOutputStream output = new ObjectOutputStream (
-			connection.getOutputStream ());
+		ObjectOutputStream output = new ObjectOutputStream (connection.getOutputStream ());
 		output.flush ();
 
-		ObjectInputStream input = new ObjectInputStream (
-			connection.getInputStream ());
+		ObjectInputStream input = new ObjectInputStream (connection.getInputStream ());
 
-		c = new Connection (connection, input, output) {
+		c = new ConnectionServer (connection, input, output) {
 
 			@Override
 			public void run () {
 				while (isOpen) {
-					String m = (String) this.retrieveObject ();
+					ParcelMessage m = (ParcelMessage) this.retrieveObject (); // TODO: I guess to only be able to receive Strings is okay for now...but
 					playMessageSound ("/messagealert.wav");
-					showMessage (m);
+					log (m.getBody ());
 
 				}
 
 			}
 
-			public void onClose () {}
 		};
 
 		c.start ();
 
 		connected = true;
 
-		showMessage ("Connected to "
-			+ connection.getInetAddress ().getHostAddress () + "\n");
+		sendParcel (new ParcelAne (ParcelAne.ANE_HELLO));
+
+		log ("Connected to %s.", connection.getInetAddress ().getHostAddress ());
+
 	}
 
 	private void saveAndExit () {
+
 		try {
 
 			FileOutputStream out = new FileOutputStream (new File (
@@ -216,48 +224,45 @@ public class Client extends JFrame {
 			System.exit (0);
 
 		}
+
 		catch (Exception e) {
-			showMessage ("Error closing properties file!");
+			log ("Error closing properties file!");
 			System.err.println ("ERROR CLOSING PROPERTIES FILE");
 			e.printStackTrace ();
 		}
+
 	}
 
-	private void ableToType (final boolean tf) {
-		SwingUtilities.invokeLater (() -> messageInput.setEditable (tf));
+	private void ableToType (final boolean tf) { SwingUtilities.invokeLater (() -> messageInput.setEditable (tf)); }
+
+	public void sendMessage (String message) {
+
+		sendParcel (new ParcelMessage (message));
+
 	}
 
-	public void sendIM (String sentStuff) {
+	public void sendParcel (Parcel parcel) {
+
 		try {
 
-			String m = username + " - " + sentStuff;
-			c.writeObject (m);
+			c.writeObject (parcel);
 
 		}
-		catch (Exception e) {
-			chatWindow.append ("\nERROR: COULD NOT SEND");
 
-		}
-	}
-
-	private void showMessage (String mes) {
-
-		chatWindow.append (mes);
+		catch (Exception e) { chatWindow.append ("\nERROR: COULD NOT SEND"); e.printStackTrace (); }
 
 	}
+
 
 	private void loadConfig () {
+
 		properties = new Properties ();
-		try {
-			properties.load (this.getClass ().getResourceAsStream (
-				"/config.properties"));
-		}
-		catch (FileNotFoundException e) {
-			System.err.println ("\nCOULD NOT LOAD CONFIG");
-		}
-		catch (IOException e) {
-			e.printStackTrace ();
-		}
+
+		try { properties.load (this.getClass ().getResourceAsStream ("/config.properties")); }
+
+		catch (FileNotFoundException e) { System.err.println ("\nCOULD NOT LOAD CONFIG"); }
+		catch (IOException e) { e.printStackTrace (); }
+
 	}
 
 	private String getSetting (String key) {

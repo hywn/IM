@@ -5,7 +5,7 @@ import com.Fawkes.event.EventHandler;
 import com.Fawkes.event.EventParcelAneReceived;
 import com.Fawkes.event.EventParcelMessageReceived;
 import com.Fawkes.event.Listener;
-import com.Fawkes.network.Connection;
+import com.Fawkes.network.ConnectionClient;
 import com.Fawkes.network.ParcelAne;
 import com.Fawkes.network.ParcelMessage;
 import com.Fawkes.network.Sender;
@@ -39,10 +39,10 @@ public class Announcer implements Listener {
 
 		Server s = Server.getServer ();
 
-		for (Connection c : s.getConnections ()) {
+		for (ConnectionClient c : s.getConnections ()) {
 
 			b.append (connector); connector = ", ";
-			b.append (c.getAddress ());
+			b.append (c.getSender ().getAddress ());
 
 		}
 
@@ -52,6 +52,8 @@ public class Announcer implements Listener {
 
 	@EventHandler
 	public void onMessageReceive (EventParcelMessageReceived e) {
+
+		System.out.println (e.getParcel ().getBody ());
 
 		ParcelMessage m = e.getParcel ();
 

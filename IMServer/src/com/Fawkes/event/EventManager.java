@@ -21,6 +21,8 @@ public class EventManager {
 
 	public void callEvent (Event event) {
 
+		System.out.println (event.getClass ());
+
 		for (Listener listener : listeners) {
 
 			if (event.isCancelled ()) break;
@@ -36,7 +38,7 @@ public class EventManager {
 
 		for (Method method : listener.getClass ().getMethods ()) {
 
-			if (method.isAnnotationPresent (EventHandler.class)) continue;
+			if (!method.isAnnotationPresent (EventHandler.class)) continue;
 			if (method.getParameterCount () != 1) continue;
 			if (method.getParameterTypes ()[0] != event.getClass ()) continue;
 

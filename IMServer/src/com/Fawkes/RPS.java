@@ -38,7 +38,7 @@ public class RPS implements Listener {
 
 			initiator = new RPSPlayer (c.getSender (), choice);
 			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), c.getSender ().getAddress ());
-			Server.staticBroadcast ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.");
+			Server.staticBroadcast (String.format ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.", c.getSender ().getNickname ())); // TODO: %s breaks everything... make sure log() is SEPERATE from the method that displays incoming methods.
 			return;
 
 		}
