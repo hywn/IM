@@ -1,49 +1,53 @@
 package moe.hilaryoi.im;
 
+<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/RPS.java
 import moe.hilaryoi.im.event.EventHandler;
 import moe.hilaryoi.im.event.EventParcelCommandReceived;
 import moe.hilaryoi.im.event.Listener;
 import moe.hilaryoi.im.network.ParcelCommand;
 import moe.hilaryoi.im.network.Sender;
+=======
+import moe.hilaryoi.im.network.ParcelCommand;
+import moe.hilaryoi.im.network.Sender;
+import moe.hilaryoi.im.standard.StandardCommandListener;
+>>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/RPS.java
 
 
-public class RPS implements Listener {
+public class RPS extends StandardCommandListener {
 
 	// constants
 	private final static String[] choices = new String[] { "rock", "paper", "scissors" };
-	private static final String USAGE = "Usage: /rps <rock, paper, scissors>";
 
 	//
 	private RPSPlayer initiator;
 
-	@EventHandler
-	public void onCommand (EventParcelCommandReceived e) {
+	public RPS () {
 
-		ParcelCommand c = e.getParcel ();
+		super ("/rps <rock, paper, scissors>", "rps");
 
-		if (!c.getCommandName ().equalsIgnoreCase ("rps")) return;
+	}
 
-		e.setCancelled (true);
+	@Override
+	public void doCommand (ParcelCommand c) {
 
-		if (c.getCommandArgs ().length != 1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
-
+		String sUsername = c.getSender ().getUsername ();
 		int choice = intValue (c.getCommandArgs ()[0]);
 
-		if (choice == -1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
-
-		// everything is valid
+		if (c.getCommandArgs ().length != 1 || choice == -1) { sendUsage (sUsername); return; } // validation
 
 		// become initiator if there is none
 		if (initiator == null) {
 
 			initiator = new RPSPlayer (c.getSender (), choice);
-			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), c.getSender ().getAddress ());
-			Server.staticBroadcast (String.format ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.", c.getSender ().getNickname ())); // TODO: %s breaks everything... make sure log() is SEPERATE from the method that displays incoming methods.
+			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), sUsername);
+			Server.staticBroadcast (String.format ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.", sUsername)); // TODO: %s breaks everything... make sure log() is SEPERATE from the method that displays incoming methods.
 			return;
 
 		}
 
-		Server.staticSend (String.format ("You challenge %s with your choice of %s.", initiator.getSender ().getNickname (), choices[choice]), c.getSender ().getAddress ());
+		String iUsername = initiator.getSender ().getUsername ();
+
+		Server.staticSend (String.format ("You challenge %s with your choice of %s.", iUsername, choices[choice]), sUsername);
 
 		// calculate the game
 		RPSPlayer challenger = new RPSPlayer (c.getSender (), choice); // just for ease of coding
@@ -52,13 +56,13 @@ public class RPS implements Listener {
 
 		String winner;
 		if (result == 0) winner = "nobody";
-		else if (result == 1) winner = challenger.getSender ().getNickname ();
-		else winner = initiator.getSender ().getNickname ();
+		else if (result == 1) winner = sUsername;
+		else winner = iUsername;
 
 		// announce winners
 		Server.staticBroadcast (String.format ("%s challenges %s... %s challenges %s... %s wins!",
-			challenger.getSender ().getNickname (),
-			initiator.getSender ().getNickname (),
+			sUsername,
+			iUsername,
 			choices[challenger.getChoice ()],
 			choices[initiator.getChoice ()],
 			winner));
@@ -68,7 +72,7 @@ public class RPS implements Listener {
 
 	}
 
-	private int intValue (String rps) {
+	public static int intValue (String rps) {
 
 		for (int i = 0; i < choices.length; i++) if (rps.equals (choices[i])) return i;
 

@@ -1,7 +1,7 @@
 package com.Fawkes;
 
+import moe.hilaryoi.im.gui.ChatWindow;
 import moe.hilaryoi.im.network.ConnectionServer;
-import moe.hilaryoi.im.network.Parcel;
 import moe.hilaryoi.im.network.ParcelAne;
 import moe.hilaryoi.im.network.ParcelMessage;
 
@@ -12,24 +12,25 @@ import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Properties;
 
-public class Client extends JFrame {
+public class Client extends ChatWindow {
 
 	private static final long serialVersionUID = 1L;
 
 	// gui
-	private JTextField messageInput;
-	private JTextArea chatWindow;
 	private JMenuBar menuBar;
 	private JMenu options;
 	private JMenuItem settings;
 
 	// connections
-	private ConnectionServer c;
+	private ConnectionServer connection;
 
 	// settings, misc
 	private String username;
@@ -41,14 +42,12 @@ public class Client extends JFrame {
 
 	public Client () {
 
-		super ("PoodleIM Beta Client 0.6");
+		super ("IMClient 0.2");
 
 		loadConfig ();
 		loadValues ();
 
 		// creates gui
-		messageInput = new JTextField ();
-		chatWindow = new JTextArea ();
 		menuBar = new JMenuBar ();
 		options = new JMenu ("Options");
 		settings = new JMenuItem ("Settings");
@@ -64,13 +63,13 @@ public class Client extends JFrame {
 		settings.addActionListener (click -> new SettingsFrame ());
 
 		// when you press enter
-		messageInput.addActionListener (enter -> {
+		addInputListener (enter -> {
 
 			if (!enter.getActionCommand ().replace (" ", "").isEmpty ()) {
 
 				sendMessage (enter.getActionCommand ());
 
-				messageInput.setText ("");
+				clearInput ();
 
 			}
 
@@ -91,35 +90,12 @@ public class Client extends JFrame {
 		};
 
 		// gui stuff
-		add (messageInput, "South");
-		add (new JScrollPane (chatWindow), "Center");
 		add (menuBar, "North");
 
-		chatWindow.setEditable (false);
 		addWindowListener (wListener);
-		setSize (500, 800);
-		setVisible (true);
+
 	}
 
-	private void log (String message, Object... objects) { chatWindow.append (String.format (message + "%n", objects)); }
-
-	// plays sound
-	public synchronized void playMessageSound (String file) {
-		if (playSound) {
-			try {
-				Clip clip = AudioSystem.getClip ();
-				AudioInputStream inputStream = AudioSystem
-					.getAudioInputStream (Client.class
-						.getResourceAsStream (file));
-
-				clip.open (inputStream);
-				clip.start ();
-			}
-			catch (Exception e) {
-				System.err.println ("ERROR PLAYING SOUND");
-			}
-		}
-	}
 
 	public void loadValues () {
 
@@ -153,13 +129,14 @@ public class Client extends JFrame {
 
 		log ("Closing and shutting down...");
 
-		sendParcel (new ParcelAne (ParcelAne.ANE_GOODBYE));
+		try { connection.sendParcel (new ParcelAne (ParcelAne.ANE_GOODBYE)); }
+		catch (IOException e) { log ("Could not send goodbye ane."); e.printStackTrace (); }
 
-		ableToType (false);
+		setInputEditable (false);
 
 		try {
 
-			c.close ();
+			connection.close ();
 			System.exit (0);
 
 		}
@@ -174,14 +151,9 @@ public class Client extends JFrame {
 
 		log ("Attempting to connect to %s on port %s...", serverIP, portNo);
 
-		Socket connection = new Socket (InetAddress.getByName (serverIP), portNo);
+		Socket socket = new Socket (InetAddress.getByName (serverIP), portNo);
 
-		ObjectOutputStream output = new ObjectOutputStream (connection.getOutputStream ());
-		output.flush ();
-
-		ObjectInputStream input = new ObjectInputStream (connection.getInputStream ());
-
-		c = new ConnectionServer (connection, input, output) {
+		connection = new ConnectionServer (socket) {
 
 			@Override
 			public void run () {
@@ -196,14 +168,40 @@ public class Client extends JFrame {
 
 		};
 
-		c.start ();
+		connection.start ();
 
 		connected = true;
 
-		sendParcel (new ParcelAne (ParcelAne.ANE_HELLO));
+		try { connection.sendParcel (new ParcelAne (ParcelAne.ANE_HELLO)); }
+		catch (IOException e) { log ("Could not send hello ane."); e.printStackTrace (); }
 
-		log ("Connected to %s.", connection.getInetAddress ().getHostAddress ());
+		log ("Connected to %s.", socket.getInetAddress ().getHostAddress ());
 
+	}
+
+	public void sendMessage (String message) {
+
+		try { connection.sendParcel (new ParcelMessage (message)); }
+		catch (IOException e) { log ("Could not send message."); e.printStackTrace (); } // TODO: no address ?
+
+	}
+
+	// plays sound
+	public synchronized void playMessageSound (String file) {
+		if (playSound) {
+			try {
+				Clip clip = AudioSystem.getClip ();
+				AudioInputStream inputStream = AudioSystem
+					.getAudioInputStream (Client.class
+						.getResourceAsStream (file));
+
+				clip.open (inputStream);
+				clip.start ();
+			}
+			catch (Exception e) {
+				System.err.println ("ERROR PLAYING SOUND");
+			}
+		}
 	}
 
 	private void saveAndExit () {
@@ -232,27 +230,6 @@ public class Client extends JFrame {
 		}
 
 	}
-
-	private void ableToType (final boolean tf) { SwingUtilities.invokeLater (() -> messageInput.setEditable (tf)); }
-
-	public void sendMessage (String message) {
-
-		sendParcel (new ParcelMessage (message));
-
-	}
-
-	public void sendParcel (Parcel parcel) {
-
-		try {
-
-			c.writeObject (parcel);
-
-		}
-
-		catch (Exception e) { chatWindow.append ("\nERROR: COULD NOT SEND"); e.printStackTrace (); }
-
-	}
-
 
 	private void loadConfig () {
 

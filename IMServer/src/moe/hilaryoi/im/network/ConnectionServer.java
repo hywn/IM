@@ -1,5 +1,7 @@
 package moe.hilaryoi.im.network;
 
+import moe.hilaryoi.im.gui.ChatWindow;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,11 +15,11 @@ public abstract class ConnectionServer implements Runnable {
 	Thread thread;
 	public boolean isOpen;
 
-	public ConnectionServer (Socket socket, ObjectInputStream inputStream, ObjectOutputStream outputStream) {
+	public ConnectionServer (Socket socket) throws IOException {
 
 		this.socket = socket;
-		this.inputStream = inputStream;
-		this.outputStream = outputStream;
+		this.inputStream = new ObjectInputStream (socket.getInputStream ());
+		this.outputStream = new ObjectOutputStream (socket.getOutputStream ());
 
 		thread = new Thread (this);
 
@@ -60,7 +62,13 @@ public abstract class ConnectionServer implements Runnable {
 
 	}
 
-	public void writeObject (Object o) throws IOException {
+	public void trySendParcel (Parcel parcel, ChatWindow)
+
+	public void sendParcel (Parcel parcel) throws IOException { writeObject (parcel); }
+
+	// nothing should be sent except parcels
+	private void writeObject (Object o) throws IOException {
+
 		outputStream.writeObject (o);
 		outputStream.flush ();
 

@@ -1,14 +1,24 @@
 package moe.hilaryoi.im.standard;
 
 import moe.hilaryoi.im.Server;
+<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/standard/Announcer.java
 import moe.hilaryoi.im.event.EventHandler;
 import moe.hilaryoi.im.event.EventParcelAneReceived;
 import moe.hilaryoi.im.event.EventParcelMessageReceived;
 import moe.hilaryoi.im.event.Listener;
+=======
+>>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/standard/Announcer.java
 import moe.hilaryoi.im.network.ConnectionClient;
 import moe.hilaryoi.im.network.ParcelAne;
 import moe.hilaryoi.im.network.ParcelMessage;
 import moe.hilaryoi.im.network.Sender;
+<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/standard/Announcer.java
+=======
+import moe.hilaryoi.im.event.EventHandler;
+import moe.hilaryoi.im.event.EventParcelAneReceived;
+import moe.hilaryoi.im.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.event.Listener;
+>>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/standard/Announcer.java
 
 public class Announcer implements Listener {
 
@@ -21,10 +31,10 @@ public class Announcer implements Listener {
 		switch (a.getValue ()) {
 
 			case (ParcelAne.ANE_HELLO):
-				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has joined the chat.", s.getAddress (), s.getNickname ()));
+				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has joined the chat.", s.getUsername (), s.getAddress ()));
 				break;
 			case (ParcelAne.ANE_GOODBYE):
-				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has left the chat.", s.getAddress (), s.getNickname ()));
+				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has left the chat.", s.getUsername (), s.getAddress ()));
 				Server.staticBroadcast (currConnected ());
 
 		}
@@ -57,8 +67,9 @@ public class Announcer implements Listener {
 
 		ParcelMessage m = e.getParcel ();
 
-		Server.staticBroadcast (String.format ("%s: %s", m.getSender ().getNickname (), m.getBody ()));
+		Server.staticBroadcast (String.format ("%s: %s", m.getSender ().getUsername (), m.getBody ()));
 
 	}
+
 
 }

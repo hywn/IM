@@ -4,7 +4,10 @@ import moe.hilaryoi.im.event.EventManager;
 import moe.hilaryoi.im.event.EventParcelAneReceived;
 import moe.hilaryoi.im.event.EventParcelCommandReceived;
 import moe.hilaryoi.im.event.EventParcelMessageReceived;
+<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/Server.java
 import com.Fawkes.network.*;
+=======
+>>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/Server.java
 import moe.hilaryoi.im.network.*;
 
 import javax.swing.*;
@@ -183,9 +186,9 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
-	public void send (String message, String address) {
+	public void send (String message, String username) {
 
-		sendNoLog (message, connections.get (address));
+		sendNoLog (message, connections.get (username));
 		log (message);
 
 	}
@@ -305,7 +308,9 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
-	public String getNickname (String address) { return "Guest"; }
+	int id = 0; // TODO: very temporary
+
+	public String getNickname (String address) { return "Guest" + String.format ("%3d", id++); }
 
 	public EventManager getEventManager () { return eventManager; }
 
@@ -319,6 +324,6 @@ public class Server extends JFrame implements Runnable {
 
 	public static void staticBroadcast (String message) { server.broadcast (message); }
 
-	public static void staticSend (String message, String address) { server.send (message, address); }
+	public static void staticSend (String message, String username) { server.send (message, username); }
 
 }
