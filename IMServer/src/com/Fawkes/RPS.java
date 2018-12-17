@@ -1,35 +1,30 @@
 package com.Fawkes;
 
-import com.Fawkes.event.EventHandler;
-import com.Fawkes.event.EventParcelCommandReceived;
-import com.Fawkes.event.Listener;
 import com.Fawkes.network.ParcelCommand;
 import com.Fawkes.network.Sender;
+import com.Fawkes.standard.StandardCommandListener;
 
 
-public class RPS implements Listener {
+public class RPS extends StandardCommandListener {
 
 	// constants
 	private final static String[] choices = new String[] { "rock", "paper", "scissors" };
-	private static final String USAGE = "Usage: /rps <rock, paper, scissors>";
 
 	//
 	private RPSPlayer initiator;
 
-	@EventHandler
-	public void onCommand (EventParcelCommandReceived e) {
+	public RPS () {
 
-		ParcelCommand c = e.getParcel ();
+		super ("/rps <rock, paper, scissors>", "rps");
 
-		if (!c.getCommandName ().equalsIgnoreCase ("rps")) return;
+	}
 
-		e.setCancelled (true);
-
-		if (c.getCommandArgs ().length != 1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
+	@Override
+	public void doCommand (ParcelCommand c) {
 
 		int choice = intValue (c.getCommandArgs ()[0]);
 
-		if (choice == -1) { Server.staticSend (USAGE, c.getSender ().getAddress ()); return; }
+		if (c.getCommandArgs ().length != 1 || choice == -1) { sendUsage (c); return; }
 
 		// everything is valid
 
@@ -68,7 +63,7 @@ public class RPS implements Listener {
 
 	}
 
-	private int intValue (String rps) {
+	public static int intValue (String rps) {
 
 		for (int i = 0; i < choices.length; i++) if (rps.equals (choices[i])) return i;
 

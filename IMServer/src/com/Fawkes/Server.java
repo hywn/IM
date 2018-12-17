@@ -25,7 +25,7 @@ Server extends JFrame implements Runnable {
 
 	// connection info
 	private ServerSocket serverSocket;
-	private HashMap<String, ConnectionClient> connections; // address, connection
+	private HashMap<String, ConnectionClient> connections; // unique username, connection
 
 	// config
 	private int port, max_connected; // will be 0 if config fails
