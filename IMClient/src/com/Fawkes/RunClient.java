@@ -1,17 +1,11 @@
 package com.Fawkes;
 
 public class RunClient {
-	public static void main(String[] args) {
+	public static void main (String[] args) {
 
-		Client client = new Client();
+		Client client = new Client ();
 
-		try {
-			client.startRunning();
-
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-
-		}
+		client.startRunning ();
 
 	}
 }

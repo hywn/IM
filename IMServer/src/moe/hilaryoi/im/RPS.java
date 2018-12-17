@@ -1,17 +1,9 @@
 package moe.hilaryoi.im;
 
-<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/RPS.java
-import moe.hilaryoi.im.event.EventHandler;
-import moe.hilaryoi.im.event.EventParcelCommandReceived;
-import moe.hilaryoi.im.event.Listener;
-import moe.hilaryoi.im.network.ParcelCommand;
-import moe.hilaryoi.im.network.Sender;
-=======
+
 import moe.hilaryoi.im.network.ParcelCommand;
 import moe.hilaryoi.im.network.Sender;
 import moe.hilaryoi.im.standard.StandardCommandListener;
->>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/RPS.java
-
 
 public class RPS extends StandardCommandListener {
 
@@ -31,9 +23,12 @@ public class RPS extends StandardCommandListener {
 	public void doCommand (ParcelCommand c) {
 
 		String sUsername = c.getSender ().getUsername ();
+
+		if (c.getCommandArgs ().length != 1) { sendUsage (sUsername); return; } // validation
+
 		int choice = intValue (c.getCommandArgs ()[0]);
 
-		if (c.getCommandArgs ().length != 1 || choice == -1) { sendUsage (sUsername); return; } // validation
+		if (choice == -1) { sendUsage (sUsername); return; }
 
 		// become initiator if there is none
 		if (initiator == null) {
@@ -61,11 +56,11 @@ public class RPS extends StandardCommandListener {
 
 		// announce winners
 		Server.staticBroadcast (String.format ("%s challenges %s... %s challenges %s... %s wins!",
-			sUsername,
-			iUsername,
-			choices[challenger.getChoice ()],
-			choices[initiator.getChoice ()],
-			winner));
+					         sUsername,
+					         iUsername,
+					         choices[challenger.getChoice ()],
+					         choices[initiator.getChoice ()],
+					         winner));
 
 		// reset game
 		initiator = null;

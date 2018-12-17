@@ -109,7 +109,7 @@ public class Client extends ChatWindow {
 
 	}
 
-	public void startRunning () throws ClassNotFoundException {
+	public void startRunning () {
 
 		try { connectToServer (); }
 
@@ -193,7 +193,7 @@ public class Client extends ChatWindow {
 				Clip clip = AudioSystem.getClip ();
 				AudioInputStream inputStream = AudioSystem
 					.getAudioInputStream (Client.class
-						.getResourceAsStream (file));
+								  .getResourceAsStream (file));
 
 				clip.open (inputStream);
 				clip.start ();
@@ -296,7 +296,7 @@ public class Client extends ChatWindow {
 				properties.setProperty ("username", usernameInput.getText ());
 				properties.setProperty ("ip", IPInput.getText ());
 				properties.setProperty ("play_sound",
-					String.valueOf (toggleSound.isSelected ()));
+						    String.valueOf (toggleSound.isSelected ()));
 				saveAndExit ();
 			}
 		}

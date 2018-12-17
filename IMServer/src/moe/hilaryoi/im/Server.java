@@ -4,15 +4,12 @@ import moe.hilaryoi.im.event.EventManager;
 import moe.hilaryoi.im.event.EventParcelAneReceived;
 import moe.hilaryoi.im.event.EventParcelCommandReceived;
 import moe.hilaryoi.im.event.EventParcelMessageReceived;
-<<<<<<< HEAD:IMServer/src/moe/hilaryoi/im/Server.java
-import com.Fawkes.network.*;
-=======
->>>>>>> 894d70d9777d29a0de9cee41503c03b27cfe9c6b:IMServer/src/moe/hilaryoi/im/Server.java
+import moe.hilaryoi.im.gui.ChatWindow;
 import moe.hilaryoi.im.network.*;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,11 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class Server extends JFrame implements Runnable {
-
-	// GUI
-	private JTextField messageInput;
-	private JTextArea chatWindow;
+public class Server extends ChatWindow implements Runnable {
 
 	// connection info
 	private ServerSocket serverSocket;
@@ -43,44 +36,30 @@ public class Server extends JFrame implements Runnable {
 
 	public Server () {
 
-		super ("SuperIM 0.1");
+		super ("IM Server 0.2");
 
 		server = this;
 
-		// init
-		connections = new HashMap ();
-		eventManager = new EventManager ();
-		loadConfig ();
+		addInputListener (enterPressed -> {
 
-		// GUI
-		messageInput = new JTextField ();
-		messageInput.addActionListener (enterPressed -> {
+			String input = getInput ();
 
-			if (messageInput.getText ().contentEquals ("CLOSE_SERVER")) {
+			if (input.equals ("CLOSE_SERVER")) {
 				closeServer ();
 				return;
 
 			}
 
-			String message = "MAIN SERVER: " + messageInput.getText ();
+			broadcast ("MAIN SERVER: " + input);
 
-			broadcast (message);
-
-			messageInput.setText ("");
+			clearInput ();
 
 		});
 
-		chatWindow = new JTextArea ();
-		chatWindow.setEditable (false);
-
-		setLayout (new BorderLayout ());
-
-		add (new JScrollPane (messageInput), BorderLayout.SOUTH);
-		add (new JScrollPane (chatWindow), BorderLayout.CENTER);
-
-		setSize (500, 800);
-		setVisible (true);
-		setDefaultCloseOperation (WindowConstants.EXIT_ON_CLOSE);
+		// init
+		connections = new HashMap ();
+		eventManager = new EventManager ();
+		loadConfig ();
 
 		// start thread
 		listenForConnections = new Thread (this);
@@ -109,12 +88,6 @@ public class Server extends JFrame implements Runnable {
 	}
 
 	//TODO: I use .getSender.getAddress () way too much
-
-	public void log (String message, Object... params) {
-
-		chatWindow.append (String.format (message, params) + "\n");
-
-	}
 
 	public void startServer () throws IOException {
 
@@ -157,23 +130,10 @@ public class Server extends JFrame implements Runnable {
 
 	}
 
-	private void sendParcel (Parcel parcel, ConnectionClient client) {
-
-
-		try { client.writeObject (parcel); }
-
-		catch (IOException e) {
-
-			log ("Error: Could not send parcel `%s` to %s.", parcel, client.getSender ().getAddress ());
-			e.printStackTrace ();
-
-		}
-
-	}
-
 	private void sendNoLog (String message, ConnectionClient connection) {
 
-		sendParcel (new ParcelMessage (message), connection);
+		try { connection.sendParcel (new ParcelMessage (message)); }
+		catch (IOException e) { log ("Could not send message to %s.", connection.getSender ().getAddress ()); e.printStackTrace (); }
 
 	}
 
@@ -189,14 +149,14 @@ public class Server extends JFrame implements Runnable {
 	public void send (String message, String username) {
 
 		sendNoLog (message, connections.get (username));
-		log (message);
+		log ("[to %s]: %s", username, message); // TODO: config?
 
 	}
 
 	// we could just take address from the object instead of using ConnectionClient but idk maybe someone mods their client ofso and that would be trouble
 	private void receive (Object object, ConnectionClient connection) {
 
-		if (!(object instanceof Parcel)) log ("Received non-Parcel object from %s.", connection.getSender ().getAddress ());
+		if (!(object instanceof Parcel)) { log ("Received non-Parcel object from %s.", connection.getSender ().getAddress ()); return; }
 
 		Parcel p = (Parcel) object;
 
@@ -268,17 +228,22 @@ public class Server extends JFrame implements Runnable {
 
 	@Override
 	public void run () {
+
 		try {
+
 			while (running) {
 
 				Socket socket = serverSocket.accept ();
 
-				log ("Attempting to connect to %s...", socket.getInetAddress ().getHostAddress ());
+				// TODO: set this only for connect; after that set to 5 mins or something and after the 5 mins catch SocketTimeoutException -> send an ane with a new code "TIMED_OUT" or osmething. or maybe just keep alive parcels?
+				//socket.setSoTimeout (3000); // TODO: config
+				// TODO: need timeouts
 
-				ConnectionClient connection = new ConnectionClient (
-					socket,
-					new ObjectInputStream (socket.getInputStream ()),
-					new ObjectOutputStream (socket.getOutputStream ())) {
+				String address = socket.getInetAddress ().getHostAddress ();
+
+				log ("Attempting to connect to %s...", address);
+
+				ConnectionClient connection = new ConnectionClient (socket) {
 
 					@Override
 					public void run () {
@@ -297,11 +262,12 @@ public class Server extends JFrame implements Runnable {
 
 				connection.start ();
 
-				connections.put (connection.getSender ().getAddress (), connection);
+				connections.put (connection.getSender ().getUsername (), connection);
 
 				log ("Connected to %s.", connection.getSender ().getAddress ());
 
 			}
+
 		}
 
 		catch (IOException e) { e.printStackTrace (); }
@@ -310,7 +276,7 @@ public class Server extends JFrame implements Runnable {
 
 	int id = 0; // TODO: very temporary
 
-	public String getNickname (String address) { return "Guest" + String.format ("%3d", id++); }
+	public String getNickname (String address) { return "Guest" + String.format ("%03d", id++); }
 
 	public EventManager getEventManager () { return eventManager; }
 

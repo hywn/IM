@@ -10,7 +10,7 @@ public class Sender { // maybe not the best design
 		return address;
 	}
 
-	public String getNickname () {
+	public String getUsername () {
 		return nickname;
 	}
 

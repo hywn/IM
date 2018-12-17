@@ -47,15 +47,4 @@ public class ChatWindow extends JFrame {
 
 	protected void setInputEditable (boolean enabled) { messageInput.setEditable (enabled); } // SwingUtilities.invokeLater (() -> messageInput.setEditable (tf));
 
-	protected interface TryAction {
-		void do();
-	}
-
-	protected void tryOrLogPrint (TryAction a) {
-
-
-
-	}
-
-
 }
