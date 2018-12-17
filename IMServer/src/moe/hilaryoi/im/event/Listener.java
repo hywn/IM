@@ -1,4 +1,4 @@
-package com.Fawkes.event;
+package moe.hilaryoi.im.event;
 
 public interface Listener {
 

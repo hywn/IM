@@ -1,11 +1,15 @@
-package com.Fawkes.standard;
+package moe.hilaryoi.im.standard;
 
-import com.Fawkes.Server;
+import moe.hilaryoi.im.Server;
 import com.Fawkes.event.*;
-import com.Fawkes.network.ConnectionClient;
-import com.Fawkes.network.ParcelAne;
-import com.Fawkes.network.ParcelMessage;
-import com.Fawkes.network.Sender;
+import moe.hilaryoi.im.network.ConnectionClient;
+import moe.hilaryoi.im.network.ParcelAne;
+import moe.hilaryoi.im.network.ParcelMessage;
+import moe.hilaryoi.im.network.Sender;
+import moe.hilaryoi.im.event.EventHandler;
+import moe.hilaryoi.im.event.EventParcelAneReceived;
+import moe.hilaryoi.im.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.event.Listener;
 
 public class Announcer implements Listener {
 

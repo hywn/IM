@@ -1,10 +1,10 @@
-package com.Fawkes.standard;
+package moe.hilaryoi.im.standard;
 
-import com.Fawkes.Server;
-import com.Fawkes.event.EventHandler;
-import com.Fawkes.event.EventParcelCommandReceived;
-import com.Fawkes.event.Listener;
-import com.Fawkes.network.ParcelCommand;
+import moe.hilaryoi.im.Server;
+import moe.hilaryoi.im.event.EventHandler;
+import moe.hilaryoi.im.event.EventParcelCommandReceived;
+import moe.hilaryoi.im.event.Listener;
+import moe.hilaryoi.im.network.ParcelCommand;
 
 public abstract class StandardCommandListener implements Listener { // listener that checks for name and usage and sends usage message when usage is incorrect
 

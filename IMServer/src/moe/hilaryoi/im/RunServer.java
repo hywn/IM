@@ -1,7 +1,7 @@
-package com.Fawkes;
+package moe.hilaryoi.im;
 
-import com.Fawkes.event.EventManager;
-import com.Fawkes.standard.Announcer;
+import moe.hilaryoi.im.event.EventManager;
+import moe.hilaryoi.im.standard.Announcer;
 
 import java.io.IOException;
 

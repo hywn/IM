@@ -1,8 +1,8 @@
-package com.Fawkes;
+package moe.hilaryoi.im;
 
-import com.Fawkes.network.ParcelCommand;
-import com.Fawkes.network.Sender;
-import com.Fawkes.standard.StandardCommandListener;
+import moe.hilaryoi.im.network.ParcelCommand;
+import moe.hilaryoi.im.network.Sender;
+import moe.hilaryoi.im.standard.StandardCommandListener;
 
 
 public class RPS extends StandardCommandListener {
