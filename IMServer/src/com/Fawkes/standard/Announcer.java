@@ -18,10 +18,10 @@ public class Announcer implements Listener {
 		switch (a.getValue ()) {
 
 			case (ParcelAne.ANE_HELLO):
-				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has joined the chat.", s.getAddress (), s.getNickname ()));
+				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has joined the chat.", s.getUsername (), s.getAddress ()));
 				break;
 			case (ParcelAne.ANE_GOODBYE):
-				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has left the chat.", s.getAddress (), s.getNickname ()));
+				Server.staticBroadcast (String.format ("MAIN SERVER: %s (%s) has left the chat.", s.getUsername (), s.getAddress ()));
 				Server.staticBroadcast (currConnected ());
 
 		}
@@ -54,7 +54,7 @@ public class Announcer implements Listener {
 
 		ParcelMessage m = e.getParcel ();
 
-		Server.staticBroadcast (String.format ("%s: %s", m.getSender ().getNickname (), m.getBody ()));
+		Server.staticBroadcast (String.format ("%s: %s", m.getSender ().getUsername (), m.getBody ()));
 
 	}
 

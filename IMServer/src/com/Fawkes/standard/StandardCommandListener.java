@@ -33,9 +33,9 @@ public abstract class StandardCommandListener implements Listener { // listener 
 
 	}
 
-	protected void sendUsage (ParcelCommand command) {
+	protected void sendUsage (String username) { // TODO: should this be ParcelCommand to make it easier in some cases ?
 
-		Server.staticSend (usage, command.getSender ().getAddress ());
+		Server.staticSend (usage, username);
 
 	}
 

@@ -22,23 +22,24 @@ public class RPS extends StandardCommandListener {
 	@Override
 	public void doCommand (ParcelCommand c) {
 
+		String sUsername = c.getSender ().getUsername ();
 		int choice = intValue (c.getCommandArgs ()[0]);
 
-		if (c.getCommandArgs ().length != 1 || choice == -1) { sendUsage (c); return; }
-
-		// everything is valid
+		if (c.getCommandArgs ().length != 1 || choice == -1) { sendUsage (sUsername); return; } // validation
 
 		// become initiator if there is none
 		if (initiator == null) {
 
 			initiator = new RPSPlayer (c.getSender (), choice);
-			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), c.getSender ().getAddress ());
-			Server.staticBroadcast (String.format ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.", c.getSender ().getNickname ())); // TODO: %s breaks everything... make sure log() is SEPERATE from the method that displays incoming methods.
+			Server.staticSend (String.format ("You start a game of rock/paper/scissors with your choice of %s.", choices[choice]), sUsername);
+			Server.staticBroadcast (String.format ("%s has started a game of rock/paper/scissors! Type /rps <rock, paper, scissors> to challenge them.", sUsername)); // TODO: %s breaks everything... make sure log() is SEPERATE from the method that displays incoming methods.
 			return;
 
 		}
 
-		Server.staticSend (String.format ("You challenge %s with your choice of %s.", initiator.getSender ().getNickname (), choices[choice]), c.getSender ().getAddress ());
+		String iUsername = initiator.getSender ().getUsername ();
+
+		Server.staticSend (String.format ("You challenge %s with your choice of %s.", iUsername, choices[choice]), sUsername);
 
 		// calculate the game
 		RPSPlayer challenger = new RPSPlayer (c.getSender (), choice); // just for ease of coding
@@ -47,13 +48,13 @@ public class RPS extends StandardCommandListener {
 
 		String winner;
 		if (result == 0) winner = "nobody";
-		else if (result == 1) winner = challenger.getSender ().getNickname ();
-		else winner = initiator.getSender ().getNickname ();
+		else if (result == 1) winner = sUsername;
+		else winner = iUsername;
 
 		// announce winners
 		Server.staticBroadcast (String.format ("%s challenges %s... %s challenges %s... %s wins!",
-			challenger.getSender ().getNickname (),
-			initiator.getSender ().getNickname (),
+			sUsername,
+			iUsername,
 			choices[challenger.getChoice ()],
 			choices[initiator.getChoice ()],
 			winner));
