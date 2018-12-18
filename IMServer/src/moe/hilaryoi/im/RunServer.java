@@ -12,6 +12,7 @@ public class RunServer {
 
 		EventManager m = server.getEventManager ();
 
+		m.addListener(new Hangman());
 		m.addListener (new Announcer ()); // maybe put in server itself
 		m.addListener (new RPS ());
 
