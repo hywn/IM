@@ -71,7 +71,8 @@ public class Server extends ChatWindow implements Runnable {
 		try {
 
 			Properties properties = new Properties ();
-			FileInputStream FIS = new FileInputStream ("config.properties");
+            System.out.println(System.getProperty("user.dir"));
+			FileInputStream FIS = new FileInputStream ("./IMServer/config.properties");
 
 			properties.load (FIS);
 
