@@ -1,4 +1,4 @@
-package com.Fawkes;
+package moe.hilaryoi.im.client;
 
 public class RunClient {
 	public static void main (String[] args) {

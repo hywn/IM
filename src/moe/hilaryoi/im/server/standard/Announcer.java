@@ -1,10 +1,10 @@
-package moe.hilaryoi.im.standard;
+package moe.hilaryoi.im.server.standard;
 
-import moe.hilaryoi.im.Server;
-import moe.hilaryoi.im.event.EventHandler;
-import moe.hilaryoi.im.event.EventParcelAneReceived;
-import moe.hilaryoi.im.event.EventParcelMessageReceived;
-import moe.hilaryoi.im.event.Listener;
+import moe.hilaryoi.im.server.Server;
+import moe.hilaryoi.im.server.event.EventHandler;
+import moe.hilaryoi.im.server.event.EventParcelAneReceived;
+import moe.hilaryoi.im.server.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.server.event.Listener;
 import moe.hilaryoi.im.network.ConnectionClient;
 import moe.hilaryoi.im.network.ParcelAne;
 import moe.hilaryoi.im.network.ParcelMessage;

@@ -1,6 +1,6 @@
-package moe.hilaryoi.im.event;
+package moe.hilaryoi.im.server.event;
 
-import moe.hilaryoi.im.Server;
+import moe.hilaryoi.im.server.Server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

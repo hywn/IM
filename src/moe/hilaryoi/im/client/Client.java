@@ -1,4 +1,4 @@
-package com.Fawkes;
+package moe.hilaryoi.im.client;
 
 import moe.hilaryoi.im.gui.ChatWindow;
 import moe.hilaryoi.im.gui.Settings;
@@ -11,15 +11,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Properties;
 
 public class Client extends ChatWindow {
 

@@ -1,9 +1,9 @@
-package moe.hilaryoi.im;
+package moe.hilaryoi.im.server;
 
-import moe.hilaryoi.im.event.EventManager;
-import moe.hilaryoi.im.event.EventParcelAneReceived;
-import moe.hilaryoi.im.event.EventParcelCommandReceived;
-import moe.hilaryoi.im.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.server.event.EventManager;
+import moe.hilaryoi.im.server.event.EventParcelAneReceived;
+import moe.hilaryoi.im.server.event.EventParcelCommandReceived;
+import moe.hilaryoi.im.server.event.EventParcelMessageReceived;
 import moe.hilaryoi.im.gui.ChatWindow;
 import moe.hilaryoi.im.gui.Settings;
 import moe.hilaryoi.im.network.*;

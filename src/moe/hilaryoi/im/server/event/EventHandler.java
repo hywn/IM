@@ -1,4 +1,4 @@
-package moe.hilaryoi.im.event;
+package moe.hilaryoi.im.server.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

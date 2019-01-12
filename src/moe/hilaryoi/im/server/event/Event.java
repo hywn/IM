@@ -1,4 +1,4 @@
-package moe.hilaryoi.im.event;
+package moe.hilaryoi.im.server.event;
 
 public abstract class Event {
 

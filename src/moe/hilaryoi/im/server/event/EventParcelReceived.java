@@ -1,4 +1,4 @@
-package moe.hilaryoi.im.event;
+package moe.hilaryoi.im.server.event;
 
 // java dumb; have to make one of these for each type of parcel
 public abstract class EventParcelReceived<P> extends Event {

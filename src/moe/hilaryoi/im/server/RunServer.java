@@ -1,7 +1,7 @@
-package moe.hilaryoi.im;
+package moe.hilaryoi.im.server;
 
-import moe.hilaryoi.im.event.EventManager;
-import moe.hilaryoi.im.standard.Announcer;
+import moe.hilaryoi.im.server.event.EventManager;
+import moe.hilaryoi.im.server.standard.Announcer;
 
 import java.io.IOException;
 

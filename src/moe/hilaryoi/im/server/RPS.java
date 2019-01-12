@@ -1,9 +1,9 @@
-package moe.hilaryoi.im;
+package moe.hilaryoi.im.server;
 
 
 import moe.hilaryoi.im.network.ParcelCommand;
 import moe.hilaryoi.im.network.Sender;
-import moe.hilaryoi.im.standard.StandardCommandListener;
+import moe.hilaryoi.im.server.standard.StandardCommandListener;
 
 public class RPS extends StandardCommandListener {
 

@@ -1,6 +1,6 @@
 package moe.hilaryoi.im.network;
 
-import moe.hilaryoi.im.Server;
+import moe.hilaryoi.im.server.Server;
 
 import java.io.IOException;
 import java.net.Socket;

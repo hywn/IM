@@ -1,10 +1,10 @@
-package moe.hilaryoi.im;
+package moe.hilaryoi.im.server;
 
-import moe.hilaryoi.im.event.EventHandler;
-import moe.hilaryoi.im.event.EventParcelMessageReceived;
+import moe.hilaryoi.im.server.event.EventHandler;
+import moe.hilaryoi.im.server.event.EventParcelMessageReceived;
 import moe.hilaryoi.im.network.ParcelCommand;
 import moe.hilaryoi.im.network.Sender;
-import moe.hilaryoi.im.standard.StandardCommandListener;
+import moe.hilaryoi.im.server.standard.StandardCommandListener;
 
 import java.util.ArrayList;
 
